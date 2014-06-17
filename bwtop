@@ -40,6 +40,7 @@ def getTraf(iface):
                 destatus[rawstatus[0][0]] = {'rcv': rcv, 'sent': sent, 'total': rcv + sent}
                 rawstatus = list()
     if matchediface == 0:
+        curses.endwin()
         print('-i value should be "all" or a valid network interface')
         exit(2)
     statistics = [counter / 1024, destatus]
