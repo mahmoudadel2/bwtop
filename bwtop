@@ -45,20 +45,23 @@ def getTraf(iface):
     statistics = [counter / 1024, destatus]
     return statistics
 
-def main(stdscr):
+def main():
     stdscr = curses.initscr()
+    curses.start_color()
+    stdscr.border(0)
     curses.use_default_colors()
     curses.init_pair(1, curses.COLOR_MAGENTA, -1)
     curses.init_pair(2, curses.COLOR_BLUE, -1)
     curses.init_pair(3, curses.COLOR_GREEN, -1)
     curses.init_pair(4, curses.COLOR_YELLOW, -1)
     x = 1
-    # Clear screen
     while True:
-        stdscr.clear()
-        stdscr.border(0)
         total ,data = getTraf(nic)
-        time.sleep(1)
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            curses.endwin()
+            exit(0)
         newtotal ,newdata = getTraf(nic)
         for key in data.keys():
             stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
@@ -74,4 +77,4 @@ def main(stdscr):
         stdscr.refresh()
         x = 1
 
-wrapper(main)
+if __name__ == '__main__': main()
