@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+__author__ = 'Mahmoud Adel <mahmoud.adel2@gmail.com>'
+__version__ = 0.1
+__status__ = "Development"
+
+'''
+CLI tool to monitor network traffic rate
+'''
+
+import argparse
+import time
+import curses
+from curses import wrapper
+
+#Setting cmd arguments
+parser = argparse.ArgumentParser(prog='check_networktraffic')
+parser.add_argument('-i', help='{all | <Interface>}', required=True)
+args = vars(parser.parse_args())
+
+#Checking arguments
+if args['i'] == 'all':
+    nic = ':'
+else:
+    nic = args['i']
+
+#Setting functions
+def getTraf(iface):
+    rawstatus = list()
+    destatus = dict()
+    counter = 0
+    matchediface = 0
+    with open('/proc/net/dev') as f:
+        for i in f:
+            if iface in i:
+                matchediface = matchediface + 1
+                rawstatus.append(i.split())
+                rcv = float(rawstatus[0][1])
+                sent = float(rawstatus[0][9])
+                counter = counter + rcv + sent
+                destatus[rawstatus[0][0]] = {'rcv': rcv, 'sent': sent, 'total': rcv + sent}
+                rawstatus = list()
+    if matchediface == 0:
+        print('-i value should be "all" or a valid network interface')
+        exit(2)
+    statistics = [counter / 1024, destatus]
+    return statistics
+
+stdscr = curses.initscr()
+def main(stdscr):
+    x = 1
+    # Clear screen
+    while True:
+        stdscr.clear()
+        stdscr.border(0)
+        total ,data = getTraf(nic)
+        time.sleep(1)
+        newtotal ,newdata = getTraf(nic)
+        for key in data.keys():
+            stdscr.addstr(x, 1, '{0}'.format(key))
+            stdscr.addstr(x, 20, 'Sent: {0} KB'.format("%.2f" % ((newdata[key]['sent'] - data[key]['sent']) / 1024)))
+            stdscr.addstr(x, 50, 'Received: {0} KB'.format("%.2f" % ((newdata[key]['rcv'] - data[key]['rcv']) / 1024)))
+            stdscr.refresh()
+            x = x + 1
+        traf = newtotal - total
+        stdscr.addstr(x, 1, 'Total: {} KB/s'.format("%.2f" % traf))
+        stdscr.refresh()
+        x = 1
+
+wrapper(main)
+
