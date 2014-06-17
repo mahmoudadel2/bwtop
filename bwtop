@@ -45,8 +45,13 @@ def getTraf(iface):
     statistics = [counter / 1024, destatus]
     return statistics
 
-stdscr = curses.initscr()
 def main(stdscr):
+    stdscr = curses.initscr()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_MAGENTA, -1)
+    curses.init_pair(2, curses.COLOR_BLUE, -1)
+    curses.init_pair(3, curses.COLOR_GREEN, -1)
+    curses.init_pair(4, curses.COLOR_YELLOW, -1)
     x = 1
     # Clear screen
     while True:
@@ -56,15 +61,17 @@ def main(stdscr):
         time.sleep(1)
         newtotal ,newdata = getTraf(nic)
         for key in data.keys():
-            stdscr.addstr(x, 1, '{0}'.format(key))
-            stdscr.addstr(x, 20, 'Sent: {0} KB'.format("%.2f" % ((newdata[key]['sent'] - data[key]['sent']) / 1024)))
-            stdscr.addstr(x, 50, 'Received: {0} KB'.format("%.2f" % ((newdata[key]['rcv'] - data[key]['rcv']) / 1024)))
+            stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
+            stdscr.addstr(x, 20, 'Sent:', curses.color_pair(2))
+            stdscr.addstr(x, 26, '{0} KB'.format("%.2f" % ((newdata[key]['sent'] - data[key]['sent']) / 1024)), curses.color_pair(3))
+            stdscr.addstr(x, 50, 'Received:', curses.color_pair(2))
+            stdscr.addstr(x, 60, '{0} KB'.format("%.2f" % ((newdata[key]['rcv'] - data[key]['rcv']) / 1024)), curses.color_pair(3))
             stdscr.refresh()
             x = x + 1
         traf = newtotal - total
-        stdscr.addstr(x, 1, 'Total: {} KB/s'.format("%.2f" % traf))
+        stdscr.addstr(x, 1, 'Total:', curses.color_pair(4))
+        stdscr.addstr(x, 8, '{} KB/s'.format("%.2f" % traf), curses.color_pair(3))
         stdscr.refresh()
         x = 1
 
 wrapper(main)
-
