@@ -49,7 +49,6 @@ def getTraf(iface):
 def main():
     stdscr = curses.initscr()
     curses.start_color()
-    stdscr.border(0)
     curses.use_default_colors()
     curses.init_pair(1, curses.COLOR_MAGENTA, -1)
     curses.init_pair(2, curses.COLOR_BLUE, -1)
@@ -64,6 +63,8 @@ def main():
             curses.endwin()
             exit(0)
         newtotal ,newdata = getTraf(nic)
+        stdscr.clear()
+        stdscr.border(0)
         for key in data.keys():
             stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
             stdscr.addstr(x, 20, 'Sent:', curses.color_pair(2))
