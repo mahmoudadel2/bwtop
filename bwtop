@@ -13,7 +13,7 @@ import curses
 import os
 
 #Setting cmd arguments
-parser = argparse.ArgumentParser(prog='check_networktraffic')
+parser = argparse.ArgumentParser(prog='bwtop')
 parser.add_argument('-i', '--interface', required=False)
 parser.add_argument('-t', '--timeout',  type=int, required=False)
 args = vars(parser.parse_args())
@@ -32,6 +32,14 @@ else:
     timeout = 1
 
 #Setting functions
+def checkOS():
+    osdetails = tuple(os.uname())
+    ostype = osdetails[0]
+    global hostname
+    hostname = osdetails[1]
+    if ostype != 'Linux':
+        exit("OS not Supported!")
+
 def sleep(sec):
     try:
         time.sleep(sec)
@@ -62,6 +70,7 @@ def getTraf(iface):
     return statistics
 
 def main():
+    checkOS()
     stdscr = curses.initscr()
     curses.start_color()
     curses.use_default_colors()
@@ -77,7 +86,7 @@ def main():
         newtotal ,newdata = getTraf(nic)
         stdscr.clear()
         stdscr.border(0)
-        stdscr.addstr(1, 1, 'BWTop on: {0}     Time: {1}       Refresh every: {2}s'.format(tuple(os.uname())[1], time.strftime("%H:%M:%S", time.gmtime()), timeout), curses.A_BOLD)
+        stdscr.addstr(1, 1, 'BWTop on: {0}     Time: {1}       Refresh every: {2}s'.format(hostname, time.strftime("%H:%M:%S", time.gmtime()), timeout), curses.A_BOLD)
         for key in data.keys():
             stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
             stdscr.addstr(x, 20, 'Sent:', curses.color_pair(2))
