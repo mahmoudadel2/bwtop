@@ -13,16 +13,30 @@ import curses
 
 #Setting cmd arguments
 parser = argparse.ArgumentParser(prog='check_networktraffic')
-parser.add_argument('-i', '--interface', help='{all | <Interface>}', required=True)
+parser.add_argument('-i', '--interface', required=False)
+parser.add_argument('-t', '--timeout',  type=int, required=False)
 args = vars(parser.parse_args())
 
 #Checking arguments
-if args['interface'] == 'all':
+if args['interface'] == None:
     nic = ':'
 else:
     nic = args['interface']
 
+if args['timeout'] != None and args['timeout'] > 0:
+    hastimeout = True
+    timeout = args['timeout']
+else:
+    hastimeout = False
+
 #Setting functions
+def sleep(sec):
+    try:
+        time.sleep(sec)
+    except KeyboardInterrupt:
+        curses.endwin()
+        exit(0)
+
 def getTraf(iface):
     rawstatus = list()
     destatus = dict()
@@ -56,11 +70,7 @@ def main():
     x = 1
     while True:
         total ,data = getTraf(nic)
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            curses.endwin()
-            exit(0)
+        sleep(1)
         newtotal ,newdata = getTraf(nic)
         stdscr.clear()
         stdscr.border(0)
@@ -77,5 +87,7 @@ def main():
         stdscr.addstr(x, 8, '{} KB/s'.format("%.2f" % traf), curses.color_pair(3))
         stdscr.refresh()
         x = 1
+        if hastimeout:
+            sleep(timeout)
 
 if __name__ == '__main__': main()
