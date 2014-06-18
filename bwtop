@@ -19,14 +19,16 @@ parser.add_argument('-t', '--timeout',  type=int, required=False)
 args = vars(parser.parse_args())
 
 #Checking arguments
-if args['interface'] == None:
+interface = args['interface']
+timeout = args['timeout']
+
+if interface == None:
     nic = ':'
 else:
-    nic = args['interface']
+    nic = interface
 
-if args['timeout'] != None and args['timeout'] > 0:
+if timeout != None and timeout > 0:
     hastimeout = True
-    timeout = args['timeout']
 else:
     hastimeout = False
     timeout = 1
@@ -86,7 +88,8 @@ def main():
         newtotal ,newdata = getTraf(nic)
         stdscr.clear()
         stdscr.border(0)
-        stdscr.addstr(1, 1, 'BWTop on: {0}     Time: {1}       Refresh every: {2}s'.format(hostname, time.strftime("%H:%M:%S", time.gmtime()), timeout), curses.A_BOLD)
+        timenow = time.strftime("%H:%M:%S", time.gmtime())
+        stdscr.addstr(1, 1, 'BWTop on: {0}     Time: {1}       Refresh every: {2}s'.format(hostname, timenow, timeout), curses.A_BOLD)
         for key in data.keys():
             stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
             stdscr.addstr(x, 20, 'Sent:', curses.color_pair(2))
