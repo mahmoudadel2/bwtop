@@ -10,18 +10,17 @@ CLI tool to monitor network traffic rate
 import argparse
 import time
 import curses
-from curses import wrapper
 
 #Setting cmd arguments
 parser = argparse.ArgumentParser(prog='check_networktraffic')
-parser.add_argument('-i', help='{all | <Interface>}', required=True)
+parser.add_argument('-i', '--interface', help='{all | <Interface>}', required=True)
 args = vars(parser.parse_args())
 
 #Checking arguments
-if args['i'] == 'all':
+if args['interface'] == 'all':
     nic = ':'
 else:
-    nic = args['i']
+    nic = args['interface']
 
 #Setting functions
 def getTraf(iface):
