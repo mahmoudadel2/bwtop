@@ -22,7 +22,7 @@ args = vars(parser.parse_args())
 #Checking arguments
 interface = args['interface']
 timeout = args['timeout']
-disablecolors = args['disable_colors']
+disablecolorskipped = args['disable_colors']
 
 if interface == None:
     nic = ':'
@@ -78,7 +78,7 @@ def main():
     stdscr = curses.initscr()
     curses.start_color()
     curses.use_default_colors()
-    if not disablecolors:
+    if not disablecolorskipped:
         curses.init_pair(1, -1, -1)
         curses.init_pair(2, -1, -1)
         curses.init_pair(3, -1, -1)
