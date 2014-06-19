@@ -44,12 +44,13 @@ def checkOS():
     if ostype != 'Linux':
         exit("OS not Supported!")
 
-def sleep(sec):
-    try:
-        time.sleep(sec)
-    except KeyboardInterrupt:
-        curses.endwin()
-        exit(0)
+def sleep(sec, pressedkey):
+    if pressedkey < 0: 
+        try:
+            time.sleep(sec)
+        except KeyboardInterrupt:
+            curses.endwin()
+            exit(0)
 
 def getTraf(iface):
     rawstatus = list()
@@ -90,9 +91,15 @@ def main():
         curses.init_pair(4, curses.COLOR_YELLOW, -1)
     xdefault = 3
     x = xdefault
+    stdscr.timeout(1)
+    curses.noecho()
     while True:
+        pressedkey = stdscr.getch()
+        if pressedkey == ord('q'):
+             curses.endwin()
+             break
         total ,data = getTraf(nic)
-        sleep(1)
+        sleep(1, pressedkey)
         newtotal ,newdata = getTraf(nic)
         stdscr.clear()
         stdscr.border(0)
@@ -112,6 +119,6 @@ def main():
         stdscr.refresh()
         x = xdefault
         if hastimeout:
-            sleep(timeout - 1)
+            sleep(timeout - 1, pressedkey)
 
 if __name__ == '__main__': main()
