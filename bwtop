@@ -16,11 +16,13 @@ import os
 parser = argparse.ArgumentParser(prog='bwtop')
 parser.add_argument('-i', '--interface', required=False)
 parser.add_argument('-t', '--timeout',  type=int, required=False)
+parser.add_argument('-d', '--disable-colors', action='store_false', help='Disable colored output "enabled by default"')
 args = vars(parser.parse_args())
 
 #Checking arguments
 interface = args['interface']
 timeout = args['timeout']
+disablecolors = args['disable_colors']
 
 if interface == None:
     nic = ':'
@@ -76,10 +78,16 @@ def main():
     stdscr = curses.initscr()
     curses.start_color()
     curses.use_default_colors()
-    curses.init_pair(1, curses.COLOR_MAGENTA, -1)
-    curses.init_pair(2, curses.COLOR_BLUE, -1)
-    curses.init_pair(3, curses.COLOR_GREEN, -1)
-    curses.init_pair(4, curses.COLOR_YELLOW, -1)
+    if not disablecolors:
+        curses.init_pair(1, -1, -1)
+        curses.init_pair(2, -1, -1)
+        curses.init_pair(3, -1, -1)
+        curses.init_pair(4, -1, -1)
+    else:
+        curses.init_pair(1, curses.COLOR_MAGENTA, -1)
+        curses.init_pair(2, curses.COLOR_BLUE, -1)
+        curses.init_pair(3, curses.COLOR_GREEN, -1)
+        curses.init_pair(4, curses.COLOR_YELLOW, -1)
     xdefault = 3
     x = xdefault
     while True:
@@ -88,7 +96,7 @@ def main():
         newtotal ,newdata = getTraf(nic)
         stdscr.clear()
         stdscr.border(0)
-        timenow = time.strftime("%H:%M:%S", time.gmtime())
+        timenow = time.strftime("%H:%M:%S")
         stdscr.addstr(1, 1, 'BWTop on: {0}     Time: {1}       Refresh every: {2}s'.format(hostname, timenow, timeout), curses.A_BOLD)
         for key in data.keys():
             stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
