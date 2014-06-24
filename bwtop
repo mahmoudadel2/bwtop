@@ -19,6 +19,10 @@ parser.add_argument('-t', '--timeout',  type=int, required=False)
 parser.add_argument('-d', '--disable-colors', action='store_false', help='Disable colored output "enabled by default"')
 args = vars(parser.parse_args())
 
+#Setting global vars
+sortkeys = dict()
+hostname = str()
+
 #Checking arguments
 interface = args['interface']
 timeout = args['timeout']
@@ -66,6 +70,7 @@ def getTraf(iface):
                 sent = float(rawstatus[0][9])
                 counter = counter + rcv + sent
                 destatus[rawstatus[0][0]] = {'rcv': rcv, 'sent': sent, 'total': rcv + sent}
+                sortkeys[rawstatus[0][0]]= rcv + sent
                 rawstatus = list()
     if matchediface == 0:
         curses.endwin()
@@ -105,12 +110,18 @@ def main():
         stdscr.border(0)
         timenow = time.strftime("%H:%M:%S")
         stdscr.addstr(1, 1, 'BWTop on: {0}     Time: {1}       Refresh every: {2}s'.format(hostname, timenow, timeout), curses.A_BOLD)
-        for key in data.keys():
+        for key in sorted(sortkeys, key=sortkeys.get, reverse=True):
+            try:
+                sent = "%.2f" % ((newdata[key]['sent'] - data[key]['sent']) / 1024)
+                rcv = "%.2f" % ((newdata[key]['rcv'] - data[key]['rcv']) / 1024)
+            except KeyError:
+                sent = 0.00
+                rcv = 0.00
             stdscr.addstr(x, 1, '{0}'.format(key), curses.color_pair(1))
             stdscr.addstr(x, 20, 'Sent:', curses.color_pair(2))
-            stdscr.addstr(x, 26, '{0} KB'.format("%.2f" % ((newdata[key]['sent'] - data[key]['sent']) / 1024)), curses.color_pair(3))
+            stdscr.addstr(x, 26, '{0} KB'.format(sent), curses.color_pair(3))
             stdscr.addstr(x, 50, 'Received:', curses.color_pair(2))
-            stdscr.addstr(x, 60, '{0} KB'.format("%.2f" % ((newdata[key]['rcv'] - data[key]['rcv']) / 1024)), curses.color_pair(3))
+            stdscr.addstr(x, 60, '{0} KB'.format(rcv), curses.color_pair(3))
             stdscr.refresh()
             x = x + 1
         traf = newtotal - total
@@ -118,7 +129,9 @@ def main():
         stdscr.addstr(x + 1, 8, '{} KB/s'.format("%.2f" % traf), curses.color_pair(3))
         stdscr.refresh()
         x = xdefault
+        sortkeys.clear()
         if hastimeout:
             sleep(timeout - 1, pressedkey)
 
+#Calling main function
 if __name__ == '__main__': main()
