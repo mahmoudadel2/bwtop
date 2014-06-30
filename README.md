@@ -1,6 +1,6 @@
 **bwtop:**
 
-CLI tool to monitor network traffic rate
+CLI tool to monitor network interfaces bandwidth rate.
 
 **Installation:**
 
